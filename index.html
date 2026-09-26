@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendify | Attendance Calculator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="app">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="logo">
+                    ✓
+                </div>
+
+                <div>
+                    <h1>Attendify</h1>
+                    <p>Smart Attendance Planner</p>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CALCULATOR -->
+        <section class="calculator-card">
+
+            <div class="card-heading">
+
+                <span class="eyebrow">
+                    ATTENDANCE TRACKER
+                </span>
+
+                <h2>Calculate your attendance</h2>
+
+                <p>
+                    Enter your class details to understand your current
+                    attendance and plan ahead.
+                </p>
+
+            </div>
+
+
+            <div class="inputs">
+
+                <!-- TOTAL CLASSES -->
+                <div class="input-group">
+
+                    <label for="totalClasses">
+                        Total Classes
+                    </label>
+
+                    <input
+                        type="number"
+                        id="totalClasses"
+                        placeholder="Example: 40"
+                        min="1"
+                    >
+
+                </div>
+
+
+                <!-- ATTENDED CLASSES -->
+                <div class="input-group">
+
+                    <label for="attendedClasses">
+                        Classes Attended
+                    </label>
+
+                    <input
+                        type="number"
+                        id="attendedClasses"
+                        placeholder="Example: 30"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <!-- TARGET -->
+                <div class="input-group full-width">
+
+                    <label for="targetAttendance">
+                        Target Attendance
+                    </label>
+
+                    <div class="target-input">
+
+                        <input
+                            type="number"
+                            id="targetAttendance"
+                            value="75"
+                            min="1"
+                            max="100"
+                        >
+
+                        <span>%</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+            <div class="buttons">
+
+                <button
+                    class="calculate-btn"
+                    onclick="calculateAttendance()"
+                >
+                    Calculate Attendance
+                    <span>→</span>
+                </button>
+
+                <button
+                    class="reset-btn"
+                    onclick="resetCalculator()"
+                >
+                    Reset
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULT -->
+        <section
+            id="result"
+            class="result hidden"
+        >
+
+            <!-- RESULT TOP -->
+            <div class="result-header">
+
+                <div>
+
+                    <p class="small-title">
+                        CURRENT ATTENDANCE
+                    </p>
+
+                    <div
+                        id="percentage"
+                        class="percentage"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+                <div class="attendance-icon">
+                    📊
+                </div>
+
+            </div>
+
+
+            <!-- PROGRESS BAR -->
+            <div class="progress-container">
+
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+
+            </div>
+
+
+            <!-- STATUS -->
+            <div
+                id="status"
+                class="status"
+            >
+            </div>
+
+
+            <!-- QUICK STATS -->
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Target
+                    </span>
+
+                    <strong id="targetDisplay">
+                        75%
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Attended
+                    </span>
+
+                    <strong id="attendedDisplay">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Total
+                    </span>
+
+                    <strong id="totalDisplay">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- RECOVERY PLANNER -->
+            <div class="planner">
+
+                <div class="planner-title">
+
+                    <div class="planner-icon">
+                        🎯
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Attendance Recovery Planner
+                        </h3>
+
+                        <p>
+                            Your personalized attendance plan
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <p
+                    id="recoveryMessage"
+                    class="recovery-message"
+                >
+                </p>
+
+
+                <!-- PLAN -->
+                <div id="plan">
+                </div>
+
+
+                <!-- PROJECTION -->
+                <div
+                    id="projection"
+                    class="projection"
+                >
+
+                    <h4>
+                        📈 Future Projection
+                    </h4>
+
+                    <div
+                        id="projectionContent"
+                        class="projection-content"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer>
+
+            <p>
+                Attendify • Built for students
+            </p>
+
+        </footer>
+
+    </main>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
