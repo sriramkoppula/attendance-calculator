@@ -8,6 +8,10 @@ It also provides a recovery planner and future attendance projections.
 
 https://sriramkoppula.github.io/attendance-calculator/
 
+## 📸 Preview
+
+![Attendify Screenshot](screenshot.png)
+
 ## ✨ Features
 
 - 📊 Calculate current attendance percentage
