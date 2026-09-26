@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sriramkoppula.github.io/attendance-calculator/sitemap.xml
