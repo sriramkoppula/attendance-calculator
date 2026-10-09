@@ -1,475 +1,497 @@
-// ==========================================
-// ATTENDANCE CALCULATOR
-// ==========================================
 
-function calculateAttendance() {
+const form = document.getElementById("attendanceForm");
 
-    // Get values from inputs
-    const totalClasses =
-        Number(document.getElementById("totalClasses").value);
+const totalInput = document.getElementById("totalClasses");
+const attendedInput = document.getElementById("attendedClasses");
+const targetInput = document.getElementById("targetAttendance");
 
-    const attendedClasses =
-        Number(document.getElementById("attendedClasses").value);
+const missInput = document.getElementById("missCount");
+const attendInput = document.getElementById("attendCount");
+const errorBox = document.getElementById("formError");
 
-    const targetAttendance =
-        Number(document.getElementById("targetAttendance").value);
+let lastValidAttendance = null;
 
 
-    // ==========================================
-    // VALIDATION
-    // ==========================================
+// ========================================
+// GET AND VALIDATE INPUTS
+// ========================================
+
+function getAttendanceData() {
+    const total = Number(totalInput.value);
+    const attended = Number(attendedInput.value);
+    const target = Number(targetInput.value);
 
     if (
-        totalClasses <= 0 ||
-        attendedClasses < 0 ||
-        targetAttendance <= 0
+        totalInput.value.trim() === "" ||
+        attendedInput.value.trim() === ""
     ) {
-
-        alert("Please enter valid values.");
-
-        return;
+        return {
+            error: "Enter both classes attended and total classes."
+        };
     }
 
-
-    if (attendedClasses > totalClasses) {
-
-        alert(
-            "Classes attended cannot be greater than total classes."
-        );
-
-        return;
+    if (
+        !Number.isInteger(total) ||
+        !Number.isInteger(attended) ||
+        total < 1 ||
+        attended < 0
+    ) {
+        return {
+            error: "Enter valid whole numbers for your classes."
+        };
     }
 
-
-    if (targetAttendance > 100) {
-
-        alert(
-            "Target attendance cannot be greater than 100%."
-        );
-
-        return;
+    if (attended > total) {
+        return {
+            error: "Classes attended cannot exceed total classes."
+        };
     }
 
-
-    // ==========================================
-    // CURRENT ATTENDANCE
-    // ==========================================
-
-    const currentAttendance =
-        (attendedClasses / totalClasses) * 100;
-
-
-    // ==========================================
-    // SHOW RESULT
-    // ==========================================
-
-    document
-        .getElementById("result")
-        .classList
-        .remove("hidden");
-
-
-    // Percentage
-    document
-        .getElementById("percentage")
-        .textContent =
-        currentAttendance.toFixed(2) + "%";
-
-
-    // Progress bar
-    const progressBar =
-        document.getElementById("progressBar");
-
-    progressBar.style.width =
-        Math.min(currentAttendance, 100) + "%";
-
-
-    // ==========================================
-    // QUICK STATS
-    // ==========================================
-
-    document
-        .getElementById("targetDisplay")
-        .textContent =
-        targetAttendance + "%";
-
-
-    document
-        .getElementById("attendedDisplay")
-        .textContent =
-        attendedClasses;
-
-
-    document
-        .getElementById("totalDisplay")
-        .textContent =
-        totalClasses;
-
-
-    // ==========================================
-    // STATUS
-    // ==========================================
-
-    const status =
-        document.getElementById("status");
-
-
-    status.className = "status";
-
-
-    if (currentAttendance >= targetAttendance) {
-
-        status.classList.add("good");
-
-        status.textContent =
-            "✅ You are above your target attendance. " +
-            "You have some attendance flexibility.";
-
-        calculateSafeBunks(
-            totalClasses,
-            attendedClasses,
-            targetAttendance
-        );
-
+    if (
+        !Number.isFinite(target) ||
+        target <= 0 ||
+        target > 100
+    ) {
+        return {
+            error: "Target attendance must be between 1% and 100%."
+        };
     }
 
-    else {
-
-        status.classList.add("warning");
-
-        status.textContent =
-            "⚠️ Your attendance is below the target. " +
-            "Follow the recovery plan below.";
-
-        calculateRecovery(
-            totalClasses,
-            attendedClasses,
-            targetAttendance
-        );
-    }
+    return {
+        total,
+        attended,
+        target,
+        current: (attended / total) * 100
+    };
+}
 
 
-    // ==========================================
-    // FUTURE PROJECTION
-    // ==========================================
+// ========================================
+// CALCULATE SAFE CLASSES TO MISS
+// ========================================
 
-    showProjection(
-        totalClasses,
-        attendedClasses
+function safeMissCount(total, attended, target) {
+    const targetRatio = target / 100;
+
+    return Math.max(
+        0,
+        Math.floor(
+            attended / targetRatio - total + 1e-10
+        )
     );
 }
 
 
-// ==========================================
-// SAFE BUNK CALCULATOR
-// ==========================================
+// ========================================
+// CALCULATE CLASSES NEEDED
+// ========================================
 
-function calculateSafeBunks(
-    total,
-    attended,
-    target
-) {
+function classesNeeded(total, attended, target) {
+    const targetRatio = target / 100;
 
-    let safeBunks = 0;
-
-
-    /*
-       We check how many future classes
-       can be missed while maintaining
-       the target attendance.
-    */
-
-    while (
-        (
-            attended /
-            (total + safeBunks + 1)
-        ) * 100 >= target
-    ) {
-
-        safeBunks++;
+    // Already meeting the target
+    if (attended / total >= targetRatio) {
+        return 0;
     }
 
+    // For a 100% target, every remaining class must be attended
+    if (target === 100) {
+        return total - attended;
+    }
 
-    document
-        .getElementById("recoveryMessage")
-        .textContent =
-        "Your attendance is currently healthy. " +
-        "Here is how much flexibility you have.";
+    const needed = Math.ceil(
+        (
+            targetRatio * total - attended
+        ) / (
+            1 - targetRatio
+        ) - 1e-10
+    );
 
-
-    document
-        .getElementById("plan")
-        .innerHTML = `
-
-            <div class="plan-item">
-
-                <span>
-                    🎯 Safe classes you can miss
-                </span>
-
-                <strong>
-                    ${safeBunks}
-                </strong>
-
-            </div>
-
-            <div class="plan-item">
-
-                <span>
-                    📌 Target attendance
-                </span>
-
-                <strong>
-                    ${target}%
-                </strong>
-
-            </div>
-
-        `;
+    return Math.max(0, needed);
 }
 
 
-// ==========================================
-// RECOVERY CALCULATOR
-// ==========================================
+// ========================================
+// PROJECT FUTURE ATTENDANCE
+// ========================================
 
-function calculateRecovery(
+function projectedAttendance(
     total,
     attended,
-    target
+    missed,
+    attendedFuture
 ) {
+    const futureTotal = total + missed + attendedFuture;
+    const futureAttended = attended + attendedFuture;
 
-    let classesNeeded = 0;
-
-
-    /*
-       Formula:
-
-       (attended + x)
-       ---------------- >= target
-       (total + x)
-
-       We calculate x using a loop
-       because it is easier to understand
-       and works well for this project.
-    */
-
-    while (
-        (
-            (attended + classesNeeded) /
-            (total + classesNeeded)
-        ) * 100 < target
-    ) {
-
-        classesNeeded++;
-
-
-        // Safety limit
-        if (classesNeeded > 10000) {
-
-            break;
-        }
+    if (futureTotal === 0) {
+        return 0;
     }
 
-
-    const finalAttendance =
-        (
-            (attended + classesNeeded) /
-            (total + classesNeeded)
-        ) * 100;
-
-
-    document
-        .getElementById("recoveryMessage")
-        .textContent =
-        "You need to attend the next " +
-        classesNeeded +
-        " class(es) continuously to reach your target.";
-
-
-    document
-        .getElementById("plan")
-        .innerHTML = `
-
-            <div class="plan-item">
-
-                <span>
-                    📚 Classes required
-                </span>
-
-                <strong>
-                    ${classesNeeded}
-                </strong>
-
-            </div>
-
-
-            <div class="plan-item">
-
-                <span>
-                    📈 Expected attendance
-                </span>
-
-                <strong>
-                    ${finalAttendance.toFixed(2)}%
-                </strong>
-
-            </div>
-
-
-            <div class="plan-item">
-
-                <span>
-                    🎯 Target
-                </span>
-
-                <strong>
-                    ${target}%
-                </strong>
-
-            </div>
-
-        `;
+    return (futureAttended / futureTotal) * 100;
 }
 
 
-// ==========================================
-// FUTURE PROJECTION
-// ==========================================
+// ========================================
+// UPDATE WHAT-IF SIMULATOR CARDS
+// ========================================
 
-function showProjection(
-    total,
-    attended
+function setProjection(
+    cardId,
+    percentageId,
+    messageId,
+    percentage,
+    target
 ) {
+    const card = document.getElementById(cardId);
 
-    const projectionContent =
-        document.getElementById(
-            "projectionContent"
+    const percentageElement =
+        document.getElementById(percentageId);
+
+    const messageElement =
+        document.getElementById(messageId);
+
+    percentageElement.textContent =
+        percentage.toFixed(2) + "%";
+
+    card.classList.remove(
+        "good-projection",
+        "neutral-projection"
+    );
+
+    if (percentage + 1e-9 >= target) {
+        card.classList.add("good-projection");
+
+        messageElement.textContent =
+            "You will stay at or above your " +
+            target + "% target.";
+    } else {
+        messageElement.textContent =
+            "You will fall below your " +
+            target + "% target.";
+    }
+}
+
+
+// ========================================
+// RUN WHAT-IF SIMULATOR
+// ========================================
+
+function updateSimulator() {
+    if (!lastValidAttendance) {
+        return;
+    }
+
+    const {
+        total,
+        attended,
+        target
+    } = lastValidAttendance;
+
+    const missed = Math.max(
+        0,
+        Math.min(
+            10000,
+            Math.floor(Number(missInput.value) || 0)
+        )
+    );
+
+    const attendedFuture = Math.max(
+        0,
+        Math.min(
+            10000,
+            Math.floor(Number(attendInput.value) || 0)
+        )
+    );
+
+    // Prevent negative class counts
+    if (
+        missInput.value !== "" &&
+        Number(missInput.value) < 0
+    ) {
+        missInput.value = "0";
+    }
+
+    if (
+        attendInput.value !== "" &&
+        Number(attendInput.value) < 0
+    ) {
+        attendInput.value = "0";
+    }
+
+    // Scenario 1: Miss upcoming classes
+    const afterMissing = projectedAttendance(
+        total,
+        attended,
+        missed,
+        0
+    );
+
+    setProjection(
+        "missProjectionCard",
+        "missProjection",
+        "missMessage",
+        afterMissing,
+        target
+    );
+
+    // Scenario 2: Attend additional classes
+    const afterAttending = projectedAttendance(
+        total,
+        attended,
+        0,
+        attendedFuture
+    );
+
+    setProjection(
+        "attendProjectionCard",
+        "attendProjection",
+        "attendMessage",
+        afterAttending,
+        target
+    );
+}
+
+
+// ========================================
+// DISPLAY CALCULATION RESULTS
+// ========================================
+
+function renderResults(data) {
+    const {
+        total,
+        attended,
+        target,
+        current
+    } = data;
+
+    const safeMisses = safeMissCount(
+        total,
+        attended,
+        target
+    );
+
+    const needed = classesNeeded(
+        total,
+        attended,
+        target
+    );
+
+    // Current percentage
+    document.getElementById("percentage").textContent =
+        current.toFixed(2) + "%";
+
+    // Progress bar
+    document.getElementById("progressBar").style.width =
+        Math.min(current, 100) + "%";
+
+    document.getElementById("progressTrack")
+        .setAttribute(
+            "aria-valuenow",
+            String(Math.min(current, 100))
         );
 
+    // Class counts
+    document.getElementById("classCount").textContent =
+        attended + " attended out of " +
+        total + " classes";
 
-    // Attendance after attending next 5 classes
-    const afterFive =
-        (
-            (attended + 5) /
-            (total + 5)
-        ) * 100;
+    // Attendance status
+    const status = document.getElementById("status");
 
+    status.classList.remove("warning");
 
-    // Attendance after attending next 10 classes
-    const afterTen =
-        (
-            (attended + 10) /
-            (total + 10)
-        ) * 100;
+    if (current + 1e-9 >= target) {
+        status.textContent =
+            "✓ You're meeting your " +
+            target + "% target.";
+    } else {
+        status.classList.add("warning");
 
+        status.textContent =
+            "⚠ You're below your " +
+            target + "% target. Follow your recovery plan.";
+    }
 
-    projectionContent.innerHTML = `
+    // Safe classes to miss
+    document.getElementById("safeBunks").textContent =
+        safeMisses;
 
-        <div class="projection-item">
+    document.getElementById("safeBunksNote").textContent =
+        "and still maintain " + target + "%";
 
-            <span>
-                Attend next 5 classes
-            </span>
+    // Classes needed to reach target
+    document.getElementById("classesNeeded").textContent =
+        needed;
 
-            <strong>
-                ${afterFive.toFixed(2)}%
-            </strong>
+    if (needed === 0) {
+        document.getElementById("classesNeededNote")
+            .textContent =
+            "you already meet your target";
+    } else {
+        document.getElementById("classesNeededNote")
+            .textContent =
+            "in a row to reach " + target + "%";
+    }
 
-        </div>
+    // Save the last valid calculation
+    lastValidAttendance = {
+        total,
+        attended,
+        target,
+        current
+    };
 
-
-        <div class="projection-item">
-
-            <span>
-                Attend next 10 classes
-            </span>
-
-            <strong>
-                ${afterTen.toFixed(2)}%
-            </strong>
-
-        </div>
-
-    `;
+    // Update both simulator cards
+    updateSimulator();
 }
 
 
-// ==========================================
-// RESET
-// ==========================================
+// ========================================
+// CALCULATE BUTTON
+// ========================================
 
-function resetCalculator() {
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-    // Clear inputs
-    document
-        .getElementById("totalClasses")
-        .value = "";
+    const data = getAttendanceData();
 
+    if (data.error) {
+        errorBox.textContent = data.error;
+        errorBox.classList.add("visible");
+        return;
+    }
 
-    document
-        .getElementById("attendedClasses")
-        .value = "";
+    errorBox.textContent = "";
+    errorBox.classList.remove("visible");
 
-
-    document
-        .getElementById("targetAttendance")
-        .value = "75";
-
-
-    // Hide result
-    document
-        .getElementById("result")
-        .classList
-        .add("hidden");
+    renderResults(data);
+});
 
 
-    // Reset percentage
-    document
-        .getElementById("percentage")
-        .textContent = "0%";
+// ========================================
+// LIVE WHAT-IF INPUTS
+// ========================================
+
+missInput.addEventListener(
+    "input",
+    updateSimulator
+);
+
+attendInput.addEventListener(
+    "input",
+    updateSimulator
+);
 
 
-    // Reset progress
-    document
-        .getElementById("progressBar")
-        .style.width = "0%";
+// Recalculate if the main values change after a valid calculation
+[
+    targetInput,
+    totalInput,
+    attendedInput
+].forEach(function (input) {
+    input.addEventListener("input", function () {
+        if (!lastValidAttendance) {
+            return;
+        }
+
+        const data = getAttendanceData();
+
+        if (data.error) {
+            errorBox.textContent = data.error;
+            errorBox.classList.add("visible");
+            return;
+        }
+
+        errorBox.textContent = "";
+        errorBox.classList.remove("visible");
+
+        renderResults(data);
+    });
+});
 
 
-    // Clear status
-    document
-        .getElementById("status")
-        .textContent = "";
+// ========================================
+// RESET BUTTON
+// ========================================
 
+document.getElementById("resetButton")
+    .addEventListener("click", function () {
+        form.reset();
 
-    // Clear planner
-    document
-        .getElementById("recoveryMessage")
-        .textContent = "";
+        totalInput.value = "";
+        attendedInput.value = "";
+        targetInput.value = "75";
 
+        missInput.value = "3";
+        attendInput.value = "4";
 
-    document
-        .getElementById("plan")
-        .innerHTML = "";
+        lastValidAttendance = null;
 
+        // Reset current attendance
+        document.getElementById("percentage")
+            .textContent = "—";
 
-    document
-        .getElementById("projectionContent")
-        .innerHTML = "";
+        document.getElementById("progressBar")
+            .style.width = "0%";
 
+        document.getElementById("progressTrack")
+            .setAttribute("aria-valuenow", "0");
 
-    // Reset stats
-    document
-        .getElementById("targetDisplay")
-        .textContent = "75%";
+        document.getElementById("classCount")
+            .textContent =
+            "Enter your class details to begin.";
 
+        // Reset status
+        const status = document.getElementById("status");
 
-    document
-        .getElementById("attendedDisplay")
-        .textContent = "0";
+        status.textContent =
+            "Add your attendance details in the calculator.";
 
+        status.classList.remove("warning");
 
-    document
-        .getElementById("totalDisplay")
-        .textContent = "0";
-}
+        // Reset answers
+        document.getElementById("safeBunks")
+            .textContent = "—";
+
+        document.getElementById("safeBunksNote")
+            .textContent =
+            "while staying at your target";
+
+        document.getElementById("classesNeeded")
+            .textContent = "—";
+
+        document.getElementById("classesNeededNote")
+            .textContent = "to reach your target";
+
+        // Reset simulator
+        document.getElementById("missProjection")
+            .textContent = "—";
+
+        document.getElementById("attendProjection")
+            .textContent = "—";
+
+        document.getElementById("missMessage")
+            .textContent =
+            "Calculate your attendance first.";
+
+        document.getElementById("attendMessage")
+            .textContent =
+            "Calculate your attendance first.";
+
+        document.getElementById("missProjectionCard")
+            .classList.remove(
+                "good-projection",
+                "neutral-projection"
+            );
+
+        document.getElementById("attendProjectionCard")
+            .classList.remove(
+                "good-projection",
+                "neutral-projection"
+            );
+
+        // Clear validation errors
+        errorBox.textContent = "";
+        errorBox.classList.remove("visible");
+    });

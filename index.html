@@ -1,347 +1,196 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="google-site-verification" content="yDjTJZKBlWgLQIJ6egZPZvDin8wxFIIYR6Xtv5oH-eI">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Google Search Console Verification -->
-    <meta
-        name="google-site-verification"
-        content="yDjTJZKBlWgLQIJ6egZPZvDin8wxFIIYR6Xtv5oH-eI"
-    >
+    <title>Attendance Calculator - Attendify | Calculate & Plan Attendance</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="description" content="Attendify is a free attendance calculator for students. Calculate attendance percentage, classes needed to reach your target, safe classes to miss, and future attendance projections.">
+    <meta name="keywords" content="attendance calculator, college attendance calculator, student attendance calculator, attendance percentage calculator, attendance planner">
+    <meta name="author" content="Sriram Koppula">
 
-    <title>
-        Attendance Calculator - Attendify | Calculate & Plan Attendance
-    </title>
+    <link rel="canonical" href="https://sriramkoppula.github.io/attendance-calculator/">
+    <meta name="theme-color" content="#ffffff">
 
-    <meta
-        name="description"
-        content="Attendify is a smart attendance calculator that calculates attendance percentage, required classes to reach your target, safe classes to miss, and future attendance projections."
-    >
-
-    <meta
-        name="keywords"
-        content="attendance calculator, college attendance calculator, student attendance calculator, attendance percentage calculator, attendance planner, safe bunk calculator"
-    >
-
-    <meta
-        name="author"
-        content="Sriram Koppula"
-    >
-
-    <link
-        rel="canonical"
-        href="https://sriramkoppula.github.io/attendance-calculator/"
-    >
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 
 <body>
-
     <main class="app">
-
-        <!-- HEADER -->
-        <header class="header">
-
-            <div class="brand">
-
-                <div class="logo">
-                    ✓
-                </div>
-
-                <div>
-                    <h1>Attendify</h1>
-                    <p>Smart Attendance Planner</p>
-                </div>
-
+        <header class="page-header">
+            <div class="brand-mark">✓</div>
+            <div>
+                <h1>Attendify</h1>
+                <p>Attendance Calculator</p>
             </div>
-
+            <span class="header-note">Simple. Smart. Student-friendly.</span>
         </header>
 
+        <div class="dashboard">
 
-        <!-- CALCULATOR -->
-        <section class="calculator-card">
+            <!-- LEFT: ATTENDANCE SUMMARY -->
+            <section class="panel summary-panel">
+                <div class="panel-heading">
+                    <span class="panel-kicker">YOUR OVERVIEW</span>
+                    <h2>Current status</h2>
+                </div>
 
-            <div class="card-heading">
+                <div class="attendance-label">Current attendance</div>
+                <div class="big-percentage" id="percentage">—</div>
 
-                <span class="eyebrow">
-                    ATTENDANCE TRACKER
-                </span>
+                <div class="progress-track" id="progressTrack"
+                     role="progressbar" aria-label="Current attendance"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
 
-                <h2>Calculate your attendance</h2>
-
-                <p>
-                    Enter your class details to understand your current
-                    attendance and plan ahead.
+                <p class="class-count" id="classCount">
+                    Enter your class details to begin.
                 </p>
 
-            </div>
-
-
-            <div class="inputs">
-
-                <!-- TOTAL CLASSES -->
-                <div class="input-group">
-
-                    <label for="totalClasses">
-                        Total Classes
-                    </label>
-
-                    <input
-                        type="number"
-                        id="totalClasses"
-                        placeholder="Example: 40"
-                        min="1"
-                    >
-
+                <div class="status-message" id="status" aria-live="polite">
+                    Add your attendance details in the calculator.
                 </div>
 
-
-                <!-- ATTENDED CLASSES -->
-                <div class="input-group">
-
-                    <label for="attendedClasses">
-                        Classes Attended
-                    </label>
-
-                    <input
-                        type="number"
-                        id="attendedClasses"
-                        placeholder="Example: 30"
-                        min="0"
-                    >
-
-                </div>
-
-
-                <!-- TARGET -->
-                <div class="input-group full-width">
-
-                    <label for="targetAttendance">
-                        Target Attendance
-                    </label>
-
-                    <div class="target-input">
-
-                        <input
-                            type="number"
-                            id="targetAttendance"
-                            value="75"
-                            min="1"
-                            max="100"
-                        >
-
-                        <span>%</span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- BUTTONS -->
-            <div class="buttons">
-
-                <button
-                    class="calculate-btn"
-                    onclick="calculateAttendance()"
-                >
-                    Calculate Attendance
-                    <span>→</span>
-                </button>
-
-                <button
-                    class="reset-btn"
-                    onclick="resetCalculator()"
-                >
-                    Reset
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- RESULT -->
-        <section
-            id="result"
-            class="result hidden"
-        >
-
-            <!-- RESULT TOP -->
-            <div class="result-header">
-
-                <div>
-
-                    <p class="small-title">
-                        CURRENT ATTENDANCE
-                    </p>
-
-                    <div
-                        id="percentage"
-                        class="percentage"
-                    >
-                        0%
-                    </div>
-
-                </div>
-
-
-                <div class="attendance-icon">
-                    📊
-                </div>
-
-            </div>
-
-
-            <!-- PROGRESS BAR -->
-            <div class="progress-container">
-
-                <div
-                    id="progressBar"
-                    class="progress-bar"
-                ></div>
-
-            </div>
-
-
-            <!-- STATUS -->
-            <div
-                id="status"
-                class="status"
-            >
-            </div>
-
-
-            <!-- QUICK STATS -->
-            <div class="stats">
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Target
-                    </span>
-
-                    <strong id="targetDisplay">
-                        75%
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Attended
-                    </span>
-
-                    <strong id="attendedDisplay">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Total
-                    </span>
-
-                    <strong id="totalDisplay">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- RECOVERY PLANNER -->
-            <div class="planner">
-
-                <div class="planner-title">
-
-                    <div class="planner-icon">
-                        🎯
-                    </div>
-
+                <div class="quick-answer">
+                    <div class="answer-icon green-icon">✓</div>
                     <div>
-
-                        <h3>
-                            Attendance Recovery Planner
-                        </h3>
-
-                        <p>
-                            Your personalized attendance plan
+                        <p class="answer-label">You can miss</p>
+                        <p class="answer-number">
+                            <strong id="safeBunks">—</strong>
+                            <span>classes</span>
                         </p>
-
+                        <p class="answer-note" id="safeBunksNote">
+                            while staying at your target
+                        </p>
                     </div>
-
                 </div>
 
+                <div class="quick-answer last-answer">
+                    <div class="answer-icon blue-icon">↑</div>
+                    <div>
+                        <p class="answer-label">You need to attend</p>
+                        <p class="answer-number">
+                            <strong id="classesNeeded">—</strong>
+                            <span>classes</span>
+                        </p>
+                        <p class="answer-note" id="classesNeededNote">
+                            to reach your target
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-                <p
-                    id="recoveryMessage"
-                    class="recovery-message"
-                >
+            <!-- CENTER: CALCULATOR -->
+            <section class="panel calculator-panel">
+                <div class="panel-heading">
+                    <span class="panel-kicker">ATTENDANCE TRACKER</span>
+                    <h2>Calculate attendance</h2>
+                    <p>Enter your numbers and get a clear plan.</p>
+                </div>
+
+                <form id="attendanceForm" novalidate>
+                    <label class="field">
+                        <span>Target attendance</span>
+                        <select id="targetAttendance" name="targetAttendance">
+                            <option value="50">50%</option>
+                            <option value="60">60%</option>
+                            <option value="65">65%</option>
+                            <option value="70">70%</option>
+                            <option value="75" selected>75%</option>
+                            <option value="80">80%</option>
+                            <option value="85">85%</option>
+                            <option value="90">90%</option>
+                            <option value="95">95%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>Classes attended</span>
+                        <input id="attendedClasses" name="attendedClasses"
+                               type="number" inputmode="numeric"
+                               min="0" step="1" placeholder="e.g. 40" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Total classes</span>
+                        <input id="totalClasses" name="totalClasses"
+                               type="number" inputmode="numeric"
+                               min="1" step="1" placeholder="e.g. 50" required>
+                    </label>
+
+                    <p class="form-error" id="formError" role="alert"></p>
+
+                    <div class="button-row">
+                        <button class="calculate-btn" type="submit">
+                            Calculate <span>→</span>
+                        </button>
+                        <button class="reset-btn" type="button" id="resetButton">
+                            Reset
+                        </button>
+                    </div>
+                </form>
+
+                <p class="calculator-tip">
+                    ⓘ Counts are based on classes, not days. Check your
+                    institution's attendance rules.
                 </p>
+            </section>
 
-
-                <!-- PLAN -->
-                <div id="plan">
+            <!-- RIGHT: WHAT-IF SIMULATOR -->
+            <section class="panel simulator-panel">
+                <div class="panel-heading">
+                    <span class="panel-kicker">EXTRA FEATURE</span>
+                    <h2>What if?</h2>
+                    <p>Preview how upcoming classes change your percentage.</p>
                 </div>
 
-
-                <!-- PROJECTION -->
-                <div
-                    id="projection"
-                    class="projection"
-                >
-
-                    <h4>
-                        📈 Future Projection
-                    </h4>
-
-                    <div
-                        id="projectionContent"
-                        class="projection-content"
-                    >
+                <div class="scenario">
+                    <label for="missCount">If you miss</label>
+                    <div class="scenario-control">
+                        <input id="missCount" type="number" min="0"
+                               max="10000" step="1" value="3">
+                        <span>classes</span>
                     </div>
 
+                    <div class="projection-card" id="missProjectionCard">
+                        <span>Projected attendance</span>
+                        <strong id="missProjection">—</strong>
+                        <p id="missMessage">Calculate your attendance first.</p>
+                    </div>
                 </div>
 
-            </div>
+                <div class="scenario">
+                    <label for="attendCount">If you attend</label>
+                    <div class="scenario-control">
+                        <input id="attendCount" type="number" min="0"
+                               max="10000" step="1" value="4">
+                        <span>more classes</span>
+                    </div>
 
-        </section>
+                    <div class="projection-card good-projection"
+                         id="attendProjectionCard">
+                        <span>Projected attendance</span>
+                        <strong id="attendProjection">—</strong>
+                        <p id="attendMessage">Calculate your attendance first.</p>
+                    </div>
+                </div>
 
+                <p class="simulator-note">
+                    These are estimates based on the numbers you enter.
+                </p>
+            </section>
+        </div>
 
-        <!-- FOOTER -->
         <footer>
-
-            <p>
-                Attendify • Built for students
-            </p>
-
+            <span>Attendify · Built for students</span>
+            <span>Plan ahead. Attend with confidence.</span>
         </footer>
-
     </main>
-
-
-    <script src="script.js"></script>
-
 </body>
-
 </html>
